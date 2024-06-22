@@ -1,21 +1,11 @@
 import logging
-import os
+import asyncio
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, BotCommand
 from aiogram import Router
-from dotenv import load_dotenv  # Импортируем библиотеку dotenv
 from job_parser import get_vacancies, URL
-
-# Загрузка переменных окружения из файла .env
-load_dotenv()
-
-# Получение токена бота из переменной окружения
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-
-# Проверка наличия токена
-if not BOT_TOKEN:
-    raise ValueError("No BOT_TOKEN provided")
+from config import BOT_TOKEN
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)
@@ -214,10 +204,13 @@ async def process_help(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
 
 
-# Запуск поллинга
-if __name__ == "__main__":
-    import asyncio
+async def main():
+    # Установка команд перед запуском бота
+    await set_commands(bot)
 
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(set_commands(bot))
-    dp.run_polling(bot, skip_updates=True)
+    # Запуск поллинга
+    await dp.start_polling(bot, skip_updates=True)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
