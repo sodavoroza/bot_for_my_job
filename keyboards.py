@@ -1,39 +1,37 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-start_and_help_buttons = InlineKeyboardMarkup(
-    inline_keyboard=[
-        [
-            InlineKeyboardButton(text="Перейти к вакансиям", callback_data="start"),
-            InlineKeyboardButton(text="Нужна помощь?", callback_data="help"),
-        ],
-    ]
-)
+class Keyboards:
+    @staticmethod
+    def create_inline_keyboard(buttons):
+        keyboard = InlineKeyboardMarkup(row_width=2, inline_keyboard=[[InlineKeyboardButton(text=text, callback_data=callback_data)] for text, callback_data in buttons])
+        return keyboard
 
-site_buttons = InlineKeyboardMarkup(
-    inline_keyboard=[
-        [
-            InlineKeyboardButton(text="hh.ru", callback_data="hh"),
-            InlineKeyboardButton(text="proglib.io", callback_data="proglib"),
-            InlineKeyboardButton(text="tproger.ru", callback_data="tproger"),
-            InlineKeyboardButton(text="career.habr.com", callback_data="habr"),
-        ],
-        [
-            InlineKeyboardButton(text="Все сразу", callback_data="all_sites"),
-        ],
-        [
-            InlineKeyboardButton(text="Назад", callback_data="back_to_start"),
-        ],
-    ]
-)
+    @staticmethod
+    def start_and_help_buttons():
+        buttons = [
+            ("Перейти к вакансиям", "start"),
+            ("Нужна помощь?", "help")
+        ]
+        return Keyboards.create_inline_keyboard(buttons)
 
-vacancies_buttons = InlineKeyboardMarkup(
-    inline_keyboard=[
-        [
-            InlineKeyboardButton(text="За сегодня", callback_data="today"),
-            InlineKeyboardButton(text="За неделю", callback_data="week"),
-        ],
-        [
-            InlineKeyboardButton(text="Назад", callback_data="back_to_sites"),
-        ],
-    ]
-)
+    @staticmethod
+    def site_buttons():
+        buttons = [
+            ("hh.ru", "hh"),
+            ("proglib.io", "proglib"),
+            ("tproger.ru", "tproger"),
+            ("habr.com", "habr"),
+            ("Все сайты", "all_sites"),
+            ("Назад", "back_to_start")
+        ]
+        return Keyboards.create_inline_keyboard(buttons)
+
+    @staticmethod
+    def vacancies_buttons():
+        buttons = [
+            ("За сегодня", "today"),
+            ("За неделю", "week"),
+            ("За всё время", "all_time"),
+            ("Назад", "back_to_sites")
+        ]
+        return Keyboards.create_inline_keyboard(buttons)
