@@ -5,7 +5,6 @@ from aiogram.types import BotCommand
 from config import BOT_TOKEN
 from handlers import register_handlers
 
-
 class BotApp:
     def __init__(self, token):
         self.bot = Bot(token=token)
