@@ -1,12 +1,10 @@
+# main.py
 import asyncio
 from aiogram import Bot, Dispatcher
 from aiogram.types import BotCommand
 from handlers import Handlers
-from config import DATABASE_URL
+from config import BOT_TOKEN, DATABASE_URL
 from models import Base, engine
-
-
-TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"
 
 
 async def set_commands(bot: Bot):
@@ -19,7 +17,7 @@ async def set_commands(bot: Bot):
 
 
 async def main():
-    bot = Bot(token=TOKEN)
+    bot = Bot(token=BOT_TOKEN)  # Используем BOT_TOKEN из config
     dp = Dispatcher()
     handlers = Handlers(bot)
     handlers.register(dp)
