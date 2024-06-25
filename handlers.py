@@ -1,5 +1,3 @@
-# handlers.py
-
 from aiogram import Router, types
 from aiogram.filters import Command
 from job_parser import JobParser
@@ -136,7 +134,7 @@ class Handlers:
         if not vacancies:
             # Здесь укажите реальные URL и параметры для парсинга
             url = "https://example.com/api/vacancies"  # Пример
-            data = parser.fetch_vacancies(url)
+            data = parser.get_all_vacancies()
             vacancies = parser.parse_vacancies(data)
             vacancy_manager.add_vacancies(site, vacancies)
 
@@ -153,40 +151,23 @@ class Handlers:
 
         for vacancy in vacancies:
             if detailed:
-                reply = (
-                    f"Название: {vacancy.title}\n"
-                    f"Описание: {vacancy.description}\n"
-                    f"ЗП: {vacancy.salary}\n"
-                    f"Навыки: {vacancy.skills}\n"
-                    f"Ссылка: {vacancy.link}\n"
+                await self.bot.send_message(
+                    chat_id=callback_query.message.chat.id,
+                    text=f"{vacancy['title']}\n\n{vacancy['description']}\n\nЗарплата: {vacancy['salary']}\n\nСсылка: {vacancy['link']}",
                 )
             else:
-                reply = (
-                    f"Название: {vacancy.title}\n"
-                    f"ЗП: {vacancy.salary}\n"
-                    f"Навыки: {vacancy.skills}\n"
-                    f"Ссылка: {vacancy.link}\n"
+                await self.bot.send_message(
+                    chat_id=callback_query.message.chat.id,
+                    text=f"{vacancy['title']}\nЗарплата: {vacancy['salary']}\nСсылка: {vacancy['link']}",
                 )
 
-            await self.bot.send_message(
-                chat_id=callback_query.message.chat.id, text=reply
-            )
-
-        await self.bot.edit_message_text(
-            chat_id=callback_query.message.chat.id,
-            message_id=callback_query.message.message_id,
-            text="Вакансии",
-            reply_markup=Keyboards.create_inline_keyboard(
-                [("Назад", "back_to_vacancies")]
-            ),
-        )
         await self.bot.answer_callback_query(callback_query.id)
 
     async def back_to_vacancies(self, callback_query: types.CallbackQuery):
         await self.bot.edit_message_text(
             chat_id=callback_query.message.chat.id,
             message_id=callback_query.message.message_id,
-            text="Для начала выбери сайт",
-            reply_markup=Keyboards.site_buttons(),
+            text="Вакансии",
+            reply_markup=Keyboards.vacancies_buttons(),
         )
         await self.bot.answer_callback_query(callback_query.id)
