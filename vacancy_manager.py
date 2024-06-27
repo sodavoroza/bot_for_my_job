@@ -57,3 +57,44 @@ class VacancyManager:
         for vacancy in vacancies:
             vacancy["site"] = site
             self.add_vacancy(vacancy)
+
+
+from aiogram.types import CallbackQuery
+
+
+async def process_vacancies(callback_query: CallbackQuery):
+    try:
+        # Проверка, содержит ли текст сообщение как минимум две строки
+        text_lines = callback_query.message.text.split("\n")
+        if len(text_lines) < 2:
+            raise ValueError("Message text does not contain enough lines")
+
+        site_line = text_lines[1]
+        # Проверка, содержит ли строка двоеточие для разделения
+        if ":" not in site_line:
+            raise ValueError("Site line does not contain ':'")
+
+        site = site_line.split(":")[1].strip()
+        # Дальнейшая обработка
+        # ...
+
+    except ValueError as ve:
+        print(f"ValueError: {ve}")
+        # Отправка сообщения пользователю о некорректном формате данных
+        await callback_query.message.answer(
+            "Некорректный формат данных. Пожалуйста, попробуйте снова."
+        )
+
+    except IndexError as ie:
+        print(f"IndexError: {ie}")
+        # Отправка сообщения пользователю о некорректном формате данных
+        await callback_query.message.answer(
+            "Произошла ошибка при обработке данных. Пожалуйста, попробуйте снова."
+        )
+
+    except Exception as e:
+        print(f"Exception: {e}")
+        # Обработка остальных исключений
+        await callback_query.message.answer(
+            "Произошла непредвиденная ошибка. Пожалуйста, попробуйте снова."
+        )
