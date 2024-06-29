@@ -97,7 +97,7 @@ class Handlers:
         await self.bot.edit_message_text(
             chat_id=callback_query.message.chat.id,
             message_id=callback_query.message.message_id,
-            text="Для начала выбери сайт",
+            text="Теперь выбери сайт",
             reply_markup=Keyboards.site_buttons(),
         )
         await self.bot.answer_callback_query(callback_query.id)
@@ -133,7 +133,7 @@ class Handlers:
         vacancies = vacancy_manager.get_vacancies(site)
         if not vacancies:
             # Здесь укажите реальные URL и параметры для парсинга
-            url = "https://example.com/api/vacancies"  # Пример
+            url = "https://hh.ru/search/vacancy?st=searchVacancy&text=Python+программист&items_on_page=100"  # Пример
             data = parser.get_all_vacancies()
             vacancies = parser.parse_vacancies(data)
             vacancy_manager.add_vacancies(site, vacancies)
@@ -142,7 +142,7 @@ class Handlers:
             await self.bot.edit_message_text(
                 chat_id=callback_query.message.chat.id,
                 message_id=callback_query.message.message_id,
-                text="Вакансий не найдено",
+                text="Вакансий почему-то нет",
                 reply_markup=Keyboards.create_inline_keyboard(
                     [("Назад", "back_to_vacancies")]
                 ),
@@ -153,12 +153,12 @@ class Handlers:
             if detailed:
                 await self.bot.send_message(
                     chat_id=callback_query.message.chat.id,
-                    text=f"{vacancy['title']}\n\n{vacancy['description']}\n\nЗарплата: {vacancy['salary']}\n\nСсылка: {vacancy['link']}",
+                    text=f"{vacancy.title}\n\n{vacancy.description}\n\nЗарплата: {vacancy.salary}\n\nСсылка: {vacancy.link}",
                 )
             else:
                 await self.bot.send_message(
                     chat_id=callback_query.message.chat.id,
-                    text=f"{vacancy['title']}\nЗарплата: {vacancy['salary']}\nСсылка: {vacancy['link']}",
+                    text=f"{vacancy.title}\nЗарплата: {vacancy.salary}\nСсылка: {vacancy.link}",
                 )
 
         await self.bot.answer_callback_query(callback_query.id)

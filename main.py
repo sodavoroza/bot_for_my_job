@@ -16,15 +16,15 @@ async def set_commands(bot: Bot):
 
 
 async def main():
-    bot = Bot(token=BOT_TOKEN)  # Используем BOT_TOKEN из config
-    dp = Dispatcher()
+    bot = Bot(token=BOT_TOKEN)
+    dp = Dispatcher()  # Инициализируем диспетчер без параметров
     handlers = Handlers(bot)
     handlers.register(dp)
 
     await set_commands(bot)
-    await dp.start_polling(bot)
+    await dp.start_polling(bot)  # Запускаем поллинг с параметром bot
 
 
 if __name__ == "__main__":
     Base.metadata.create_all(bind=engine)
-    asyncio.run(main())
+    asyncio.run(main())  # Запускаем main в асинхронном режиме

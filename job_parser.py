@@ -4,7 +4,7 @@ import time
 import random
 
 URLS = {
-    "hh": "https://hh.ru/search/vacancy?text=Python+программист&area=1&hhtmFrom=main&hhtmFromLabel=vacancy_search_line",
+    "hh": "https://hh.ru/search/vacancy?st=searchVacancy&text=Python+программист&items_on_page=100",
     "proglib": "https://proglib.io/vacancies/all",
     "tproger": "https://tproger.ru/jobs",
     "habr": "https://career.habr.com/vacancies?type=all",
@@ -36,21 +36,21 @@ class JobParser:
         soup = BeautifulSoup(html, "html.parser")
         vacancies = []
 
-        for item in soup.find_all("div", class_="vacancy-serp-item"):
-            title_tag = item.find("a", class_="serp-item__title")
+        for item in soup.find_all("div", class_="vacancy-search-item__card serp-item_link vacancy-card-container--OwxCdOj5QlSlCBZvSggS"):
+            title_tag = item.find("a", class_="bloko-link")
             title = title_tag.text if title_tag else "Не указано"
             link = title_tag["href"] if title_tag else "Не указано"
-            salary_tag = item.find("span", class_="bloko-header-section-3")
+            salary_tag = item.find("div", class_="compensation-labels--uUto71l5gcnhU2I8TZmz")
             salary = salary_tag.text if salary_tag else "Не указана"
-            description_tag = item.find("div", class_="g-user-content")
-            description = description_tag.text if description_tag else "Не указано"
+            metro_tag = item.find("span", class_="metro-station")
+            metro = metro_tag.text if metro_tag else "Не указано"
 
             vacancies.append(
                 {
                     "title": title,
                     "link": link,
                     "salary": salary,
-                    "description": description,
+                    "description": metro,
                 }
             )
         return vacancies
