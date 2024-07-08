@@ -36,11 +36,16 @@ class JobParser:
         soup = BeautifulSoup(html, "html.parser")
         vacancies = []
 
-        for item in soup.find_all("div", class_="vacancy-search-item__card serp-item_link vacancy-card-container--OwxCdOj5QlSlCBZvSggS"):
+        for item in soup.find_all(
+            "div",
+            class_="vacancy-search-item__card serp-item_link vacancy-card-container--OwxCdOj5QlSlCBZvSggS",
+        ):
             title_tag = item.find("a", class_="bloko-link")
             title = title_tag.text if title_tag else "Не указано"
             link = title_tag["href"] if title_tag else "Не указано"
-            salary_tag = item.find("div", class_="compensation-labels--uUto71l5gcnhU2I8TZmz")
+            salary_tag = item.find(
+                "div", class_="compensation-labels--uUto71l5gcnhU2I8TZmz"
+            )
             salary = salary_tag.text if salary_tag else "Не указана"
             metro_tag = item.find("span", class_="metro-station")
             metro = metro_tag.text if metro_tag else "Не указано"

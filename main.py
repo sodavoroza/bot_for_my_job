@@ -2,8 +2,7 @@ import asyncio
 from aiogram import Bot, Dispatcher
 from aiogram.types import BotCommand
 from handlers import Handlers
-from config import BOT_TOKEN, DATABASE_URL
-from models import Base, engine
+from config import BOT_TOKEN
 
 
 async def set_commands(bot: Bot):
@@ -17,14 +16,13 @@ async def set_commands(bot: Bot):
 
 async def main():
     bot = Bot(token=BOT_TOKEN)
-    dp = Dispatcher()  # Инициализируем диспетчер без параметров
+    dp = Dispatcher()
     handlers = Handlers(bot)
     handlers.register(dp)
 
     await set_commands(bot)
-    await dp.start_polling(bot)  # Запускаем поллинг с параметром bot
+    await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
-    Base.metadata.create_all(bind=engine)
-    asyncio.run(main())  # Запускаем main в асинхронном режиме
+    asyncio.run(main())

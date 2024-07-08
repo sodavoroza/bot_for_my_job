@@ -1,5 +1,3 @@
 aiogram
 python-dotenv
 requests
-sqlalchemy
-psycopg2-binary

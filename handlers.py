@@ -1,11 +1,9 @@
 from aiogram import Router, types
 from aiogram.filters import Command
 from job_parser import JobParser
-from vacancy_manager import VacancyManager
 from keyboards import Keyboards
 
 parser = JobParser()
-vacancy_manager = VacancyManager()
 
 
 class Handlers:
@@ -129,14 +127,8 @@ class Handlers:
         detailed = data == "detailed"
         site = callback_query.message.text.split("\n")[1].split(":")[1].strip()
 
-        # Попробуем получить данные из базы данных
-        vacancies = vacancy_manager.get_vacancies(site)
-        if not vacancies:
-            # Здесь укажите реальные URL и параметры для парсинга
-            url = "https://hh.ru/search/vacancy?st=searchVacancy&text=Python+программист&items_on_page=100"  # Пример
-            data = parser.get_all_vacancies()
-            vacancies = parser.parse_vacancies(data)
-            vacancy_manager.add_vacancies(site, vacancies)
+        # Получаем данные с сайта
+        vacancies = parser.get_all_vacancies().get(site, [])
 
         if not vacancies:
             await self.bot.edit_message_text(
@@ -153,12 +145,12 @@ class Handlers:
             if detailed:
                 await self.bot.send_message(
                     chat_id=callback_query.message.chat.id,
-                    text=f"{vacancy.title}\n\n{vacancy.description}\n\nЗарплата: {vacancy.salary}\n\nСсылка: {vacancy.link}",
+                    text=f"{vacancy['title']}\n\n{vacancy['description']}\n\nЗарплата: {vacancy['salary']}\n\nСсылка: {vacancy['link']}",
                 )
             else:
                 await self.bot.send_message(
                     chat_id=callback_query.message.chat.id,
-                    text=f"{vacancy.title}\nЗарплата: {vacancy.salary}\nСсылка: {vacancy.link}",
+                    text=f"{vacancy['title']}\nЗарплата: {vacancy['salary']}\nСсылка: {vacancy['link']}",
                 )
 
         await self.bot.answer_callback_query(callback_query.id)
