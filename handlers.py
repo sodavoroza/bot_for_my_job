@@ -125,7 +125,22 @@ class Handlers:
     async def process_vacancies(self, callback_query: types.CallbackQuery):
         data = callback_query.data
         detailed = data == "detailed"
-        site = callback_query.message.text.split("\n")[1].split(":")[1].strip()
+
+        try:
+            lines = callback_query.message.text.split("\n")
+            site_line = lines[1]  # Вторая строка должна содержать "Site: <site_name>"
+            site = callback_query.message.text.split("\n")[1].split(":")[1].strip()
+        except IndexError:
+            await self.bot.edit_message_text(
+                chat_id=callback_query.message.chat.id,
+                message_id=callback_query.message.message_id,
+                text="Ошибка: Неверный формат сообщения. Попробуйте снова.",
+                reply_markup=Keyboards.create_inline_keyboard(
+                    [("Назад", "back_to_vacancies")]
+                ),
+            )
+            await self.bot.answer_callback_query(callback_query.id)
+            return
 
         # Получаем данные с сайта
         vacancies = parser.get_all_vacancies().get(site, [])
