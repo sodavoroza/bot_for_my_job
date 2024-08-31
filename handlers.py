@@ -1,4 +1,5 @@
 from aiogram import Router, types
+import aiogram
 from aiogram.filters import Command
 from job_parser import JobParser
 from keyboards import Keyboards
@@ -10,6 +11,8 @@ class Handlers:
     def __init__(self, bot):
         self.bot = bot
         self.router = Router()
+        self.parser = JobParser()
+        self.parser.collect_vacancies()
 
     def register(self, dp):
         dp.include_router(self.router)
@@ -74,12 +77,45 @@ class Handlers:
 
     async def process_site_callback(self, callback_query: types.CallbackQuery):
         data = callback_query.data
-        await self.bot.edit_message_text(
-            chat_id=callback_query.message.chat.id,
-            message_id=callback_query.message.message_id,
-            text=f"Вы выбрали сайт: {data}\nТеперь выберите фильтр:",
-            reply_markup=Keyboards.vacancies_buttons(),
-        )
+        vacancies_dict = self.parser.show_all_vacancies()
+
+        if not vacancies_dict:
+            await self.bot.edit_message_text(
+                chat_id=callback_query.message.chat.id,
+                message_id=callback_query.message.message_id,
+                text="Ошибка при получении вакансий. Попробуйте снова.",
+                reply_markup=Keyboards.site_buttons(),
+            )
+            await self.bot.answer_callback_query(callback_query.id)
+            return
+
+        vacancies = vacancies_dict.get(data, [])
+
+        if not vacancies:
+            await self.bot.edit_message_text(
+                chat_id=callback_query.message.chat.id,
+                message_id=callback_query.message.message_id,
+                text="На выбранном сайте вакансий не найдено.",
+                reply_markup=Keyboards.site_buttons(),
+            )
+            await self.bot.answer_callback_query(callback_query.id)
+            return
+
+        try:
+            await self.bot.edit_message_text(
+                chat_id=callback_query.message.chat.id,
+                message_id=callback_query.message.message_id,
+                text=f"Вы выбрали сайт: {data}\nТеперь выберите фильтр:",
+                reply_markup=Keyboards.vacancies_buttons(),
+            )
+        except aiogram.exceptions.TelegramBadRequest as e:
+            if "message is not modified" in str(e):
+                # Игнорируем исключение, если сообщение не изменилось
+                pass
+            else:
+                # Если ошибка другая, выводим в лог или обрабатываем по-другому
+                raise
+
         await self.bot.answer_callback_query(callback_query.id)
 
     async def back_to_start(self, callback_query: types.CallbackQuery):
@@ -126,11 +162,10 @@ class Handlers:
         data = callback_query.data
         detailed = data == "detailed"
 
-        try:
-            lines = callback_query.message.text.split("\n")
-            site_line = lines[1]  # Вторая строка должна содержать "Site: <site_name>"
-            site = callback_query.message.text.split("\n")[1].split(":")[1].strip()
-        except IndexError:
+        lines = callback_query.message.text.split("\n")
+
+        # Проверяем, что есть хотя бы две строки в тексте сообщения
+        if len(lines) < 2 or "Site:" not in lines[1]:
             await self.bot.edit_message_text(
                 chat_id=callback_query.message.chat.id,
                 message_id=callback_query.message.message_id,
@@ -141,6 +176,8 @@ class Handlers:
             )
             await self.bot.answer_callback_query(callback_query.id)
             return
+
+        site = lines[1].split(":")[1].strip()
 
         # Получаем данные с сайта
         vacancies = parser.get_all_vacancies().get(site, [])
@@ -154,8 +191,10 @@ class Handlers:
                     [("Назад", "back_to_vacancies")]
                 ),
             )
+            await self.bot.answer_callback_query(callback_query.id)
             return
 
+        # Отправляем вакансии пользователю
         for vacancy in vacancies:
             if detailed:
                 await self.bot.send_message(

@@ -22,9 +22,8 @@ class Keyboards:
     def site_buttons():
         buttons = [
             ("hh.ru", "hh"),
-            ("proglib.io", "proglib"),
             ("tproger.ru", "tproger"),
-            ("habr", "habr"),
+            ("career.habr.com", "habr"),
             ("Все сайты", "all_sites"),
             ("Назад", "back_to_start"),
         ]
